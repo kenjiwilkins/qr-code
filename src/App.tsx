@@ -13,7 +13,7 @@ import {
   TextArea,
 } from './components'
 import QRCodeStyling from 'qr-code-styling'
-import { Download } from 'lucide-react'
+import { Download, Github } from 'lucide-react'
 import './App.css'
 
 function App() {
@@ -142,10 +142,19 @@ function App() {
                   >
                     {/* QR Code will be rendered here */}
                   </div>
-                  <Button className="flex items-center gap-2">
-                    <Download size={16} />
-                    DOWNLOAD
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button className="flex items-center gap-2">
+                      <Download size={16} />
+                      DOWNLOAD
+                    </Button>
+                    <Button
+                      className="flex items-center gap-2 github-button"
+                      onClick={() => window.open('https://github.com/kenjiwilkins/qr-code', '_blank')}
+                    >
+                      <Github size={16} />
+                      STAR
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>

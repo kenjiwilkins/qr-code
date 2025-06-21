@@ -3,9 +3,13 @@ import { ChromePicker } from 'react-color'
 
 interface ColorPickerProps {
   color?: string
+  onChange?: (color: string) => void
 }
 
-export default function ColorPicker({ color = '#ffffff' }: ColorPickerProps) {
+export default function ColorPicker({
+  color = '#ffffff',
+  onChange,
+}: ColorPickerProps) {
   const [showPicker, setShowPicker] = useState(false)
 
   const handleClick = () => {
@@ -28,7 +32,11 @@ export default function ColorPicker({ color = '#ffffff' }: ColorPickerProps) {
           <div className="fixed inset-0" onClick={handleClose} />
           <ChromePicker
             color={color}
-            onChangeComplete={color => console.log(color.hex)}
+            onChangeComplete={colorResult => {
+              if (onChange) {
+                onChange(colorResult.hex)
+              }
+            }}
             className="bg-black/50 border border-green-500/30 rounded shadow-lg"
           />
         </div>

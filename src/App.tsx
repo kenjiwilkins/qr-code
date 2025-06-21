@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
   ColorPicker,
+  ColorLabel,
   Label,
   NumberInput,
   Select,
@@ -18,6 +19,9 @@ import './App.css'
 
 function App() {
   const [url, setUrl] = useState('https://example.com')
+  const [mainColor, setMainColor] = useState('#80EF80')
+  const [bgColor, setBgColor] = useState('#000000')
+  // Create a ref to hold the QR code container
   const ref = useRef<HTMLDivElement>(null)
   const qrCodeRef = useRef<QRCodeStyling | null>(null)
   useEffect(() => {
@@ -28,17 +32,17 @@ function App() {
         data: url,
         type: 'svg',
         dotsOptions: {
-          color: '#80EF80',
+          color: mainColor,
           type: 'dots',
         },
         backgroundOptions: {
-          color: '#000000',
+          color: bgColor,
         },
         cornersDotOptions: {
           type: 'dot',
         },
         cornersSquareOptions: {
-          color: '#80EF80',
+          color: mainColor,
           type: 'extra-rounded',
         },
         imageOptions: {
@@ -47,7 +51,23 @@ function App() {
       })
       qrCodeRef.current.append(ref.current)
     }
-  }, [url])
+  }, [url, mainColor, bgColor])
+  function updateQRCode() {
+    if (qrCodeRef.current) {
+      qrCodeRef.current.update({
+        data: url,
+        dotsOptions: {
+          color: mainColor,
+        },
+        backgroundOptions: {
+          color: bgColor,
+        },
+        cornersSquareOptions: {
+          color: mainColor,
+        },
+      })
+    }
+  }
 
   return (
     <>
@@ -106,8 +126,18 @@ function App() {
                     <NumberInput id="size" />
                   </div>
                   <div>
-                    <Label htmlFor="color">{'> Color:'}</Label>
-                    <ColorPicker />
+                    <div className="flex items-center justify-start gap-1 mb-2">
+                      <Label htmlFor="color">{'> Color:'}</Label>
+                      <ColorLabel color={mainColor} />
+                    </div>
+                    <ColorPicker color={mainColor} onChange={setMainColor} />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-start gap-1 mb-2">
+                      <Label htmlFor="bgColor">{'> Background Color:'}</Label>
+                      <ColorLabel color={bgColor} />
+                    </div>
+                    <ColorPicker color={bgColor} onChange={setBgColor} />
                   </div>
                   <div>
                     <Label htmlFor="type">{'> Type:'}</Label>
@@ -123,7 +153,7 @@ function App() {
                       ]}
                     />
                   </div>
-                  <Button>UPDATE</Button>
+                  <Button onClick={updateQRCode}>UPDATE</Button>
                 </CardContent>
               </Card>
             </div>
@@ -149,7 +179,12 @@ function App() {
                     </Button>
                     <Button
                       className="flex items-center gap-2 github-button"
-                      onClick={() => window.open('https://github.com/kenjiwilkins/qr-code', '_blank')}
+                      onClick={() =>
+                        window.open(
+                          'https://github.com/kenjiwilkins/qr-code',
+                          '_blank'
+                        )
+                      }
                     >
                       <Github size={16} />
                       STAR

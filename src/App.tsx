@@ -21,6 +21,7 @@ function App() {
   const [url, setUrl] = useState('https://example.com')
   const [mainColor, setMainColor] = useState('#80EF80')
   const [bgColor, setBgColor] = useState('#000000')
+  const [isDownloading, setIsDownloading] = useState(false)
   // Create a ref to hold the QR code container
   const ref = useRef<HTMLDivElement>(null)
   const qrCodeRef = useRef<QRCodeStyling | null>(null)
@@ -66,6 +67,18 @@ function App() {
           color: mainColor,
         },
       })
+    }
+  }
+  function donwload() {
+    if (qrCodeRef.current) {
+      setIsDownloading(true)
+      qrCodeRef.current
+        .download({
+          name: 'qr-code',
+        })
+        .then(() => {
+          setIsDownloading(false)
+        })
     }
   }
 
@@ -173,7 +186,11 @@ function App() {
                     {/* QR Code will be rendered here */}
                   </div>
                   <div className="flex gap-2">
-                    <Button className="flex items-center gap-2">
+                    <Button
+                      className="flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={donwload}
+                      disabled={isDownloading}
+                    >
                       <Download size={16} />
                       DOWNLOAD
                     </Button>

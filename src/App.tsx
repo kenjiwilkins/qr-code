@@ -14,7 +14,7 @@ import {
   TextArea,
 } from './components'
 import QRCodeStyling from 'qr-code-styling'
-import { Download, Github } from 'lucide-react'
+import { Download, Github, Upload } from 'lucide-react'
 import './App.css'
 
 function App() {
@@ -22,6 +22,9 @@ function App() {
   const [mainColor, setMainColor] = useState('#80EF80')
   const [bgColor, setBgColor] = useState('#000000')
   const [isDownloading, setIsDownloading] = useState(false)
+  const [centerImage, setCenterImage] = useState<string | null>(null)
+  const [imageSize, setImageSize] = useState(0.4)
+  const [imageMargin, setImageMargin] = useState(20)
   // Create a ref to hold the QR code container
   const ref = useRef<HTMLDivElement>(null)
   const qrCodeRef = useRef<QRCodeStyling | null>(null)
@@ -48,11 +51,15 @@ function App() {
         },
         imageOptions: {
           crossOrigin: 'anonymous',
+          hideBackgroundDots: true,
+          imageSize: imageSize,
+          margin: imageMargin,
         },
+        image: centerImage || undefined,
       })
       qrCodeRef.current.append(ref.current)
     }
-  }, [url, mainColor, bgColor])
+  }, [url, mainColor, bgColor, centerImage, imageSize, imageMargin])
   function updateQRCode() {
     if (qrCodeRef.current) {
       qrCodeRef.current.update({
@@ -66,9 +73,65 @@ function App() {
         cornersSquareOptions: {
           color: mainColor,
         },
+        image: centerImage || undefined,
+        imageOptions: {
+          crossOrigin: 'anonymous',
+          hideBackgroundDots: true,
+          imageSize: imageSize,
+          margin: imageMargin,
+        },
       })
     }
   }
+  function resizeImage(file: File): Promise<string> {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')!
+      const img = new Image()
+      
+      img.onload = () => {
+        const maxSize = 200
+        let { width, height } = img
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width
+            width = maxSize
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height
+            height = maxSize
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL())
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }
+  
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg']
+    if (!validTypes.includes(file.type)) {
+      alert('Please select a PNG or JPG image')
+      return
+    }
+    
+    resizeImage(file).then(setCenterImage)
+  }
+  
+  function removeImage() {
+    setCenterImage(null)
+  }
+  
   function donwload() {
     if (qrCodeRef.current) {
       setIsDownloading(true)
@@ -165,6 +228,67 @@ function App() {
                         { value: 'square', label: 'Square' },
                       ]}
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="centerImage">{'> Center Image:'}</Label>
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="file"
+                        id="imageUpload"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        onClick={() => document.getElementById('imageUpload')?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload size={16} />
+                        UPLOAD
+                      </Button>
+                      {centerImage && (
+                        <Button
+                          onClick={removeImage}
+                          className="bg-red-600/20 hover:bg-red-600/30 border-red-500/50"
+                        >
+                          REMOVE
+                        </Button>
+                      )}
+                    </div>
+                    {centerImage && (
+                      <div className="mt-2 p-2 border border-green-500/30 rounded bg-black/30">
+                        <img
+                          src={centerImage}
+                          alt="Center image preview"
+                          className="w-16 h-16 object-contain rounded"
+                        />
+                        <div className="mt-2 space-y-2">
+                          <div>
+                            <Label htmlFor="imageSize">{'> Image Size:'}</Label>
+                            <input
+                              type="number"
+                              id="imageSize"
+                              value={imageSize}
+                              onChange={(e) => setImageSize(parseFloat(e.target.value) || 0.4)}
+                              min={0.1}
+                              max={1}
+                              step={0.1}
+                              className="w-full bg-black/50 border border-green-500/30 rounded px-3 py-2 text-green-300 font-mono text-sm focus:border-green-400 focus:outline-none focus:ring-1 focus:ring-green-400/30"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="imageMargin">{'> Image Margin:'}</Label>
+                            <NumberInput
+                              id="imageMargin"
+                              value={imageMargin}
+                              onChange={setImageMargin}
+                              min={0}
+                              max={50}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <Button onClick={updateQRCode}>UPDATE</Button>
                 </CardContent>

@@ -1,15 +1,12 @@
-export { default as Card } from './Card'
-export { default as CardHeader } from './CardHeader'
-export { default as CardTitle } from './CardTitle'
-export { default as CardDescription } from './CardDescription'
-export { default as CardContent } from './CardContent'
-export { default as Tabs } from './Tabs'
-export { default as TabsList } from './TabsList'
-export { default as TabsTrigger } from './TabsTrigger'
-export { default as Label } from './Label'
-export { default as NumberInput } from './NumberInput'
-export { default as TextArea } from './TextArea'
-export { default as ColorPicker } from './ColorPicker'
-export { default as ColorLabel } from './ColorLabel'
-export { default as Select } from './Select'
-export { default as Button } from './Button'
+/**
+ * Components barrel export
+ */
+
+// UI Components
+export * from './ui'
+
+// Form Components  
+export * from './forms'
+
+// QR Components
+export * from './qr'
